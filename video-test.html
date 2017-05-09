@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+
+<body>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
+  <script src="js/b4w.min.js"></script>
+  <script src="js/jquery-2.2.0.min.js"></script>
+  <script src="js/ogvjs/ogv-support.js"></script>
+  <script src="js/ogvjs/ogv.js"></script>
+  <script>
+  var load_cb, loaded_cb, m_anchors, m_app, m_container, m_main, m_data,
+  m_scenes, m_objects, m_mat, m_rgb, m_cam, m_phy, m_vec3;
+
+  m_app = b4w.require("app");
+  m_main  = b4w.require("main");
+  m_cam = b4w.require("camera");
+  m_math = b4w.require("math");
+  m_phy = b4w.require("physics");
+  m_data = b4w.require("data");
+  m_objects = b4w.require("objects");
+  m_mat = b4w.require("material");
+  m_container = b4w.require("container");
+  m_anchors = b4w.require("anchors");
+  m_rgb = b4w.require("rgb");
+  m_scenes = b4w.require("scenes");
+  m_vec3 = b4w.require("vec3")
+
+
+  jQuery( window ).load(function($) {
+    console.log( "document loaded" );
+
+    var debugFilter = /late frame/;
+    var maxmem = undefined;
+
+    if(OGVCompat.supported('OGVPlayer')) {
+      player = new OGVPlayer({
+      debug: !!debugFilter,
+      debugFilter: debugFilter,
+      memoryLimit: maxmem,
+      enableWebM: true
+    });
+
+
+    var video_element = document.getElementById('video_element')
+
+    jQuery(video_element).append(player);
+    player.src = "/video/20170508_103345_160p.webm";
+    player.play();
+
+    player.addEventListener('ended', function() {
+      player.stop();
+      player.play();
+    });
+
+    }
+
+    return m_app.init({
+      canvas_container_id: "b4w-overlay",
+      callback: init_cb,
+      physics_enabled: true,
+      show_fps: true,
+    });
+  });
+
+  init_cb = function(canvas_elem, success) {
+    m_data.load("all-floors.json", load_cb);
+    canvas_elem.addEventListener("mousedown", main_canvas_click, false);
+  };
+
+  load_cb = function() {
+    m_app.enable_camera_controls(false, true);
+  };
+
+  jQuery(function() {
+    return $(window).resize(function() {
+      var h, w;
+      w = $(window).width();
+      h = $(window).height();
+      m_container.resize(w, h, true);
+    });
+  });
+
+  function main_canvas_click(e) {
+    var x = e.clientX;
+    var y = e.clientY;
+
+    console.log("main_canvas_click: " + x + ", " + y);
+  }
+
+  window.oncontextmenu = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  };
+
+  </script>
+  <div id="search_box">
+    <form>
+      <input type="text" name="search">
+    </form>
+  </div>
+  <div id="video_box">
+    <div id="video_element" class="video_element"></div>
+  </div>
+  <div id="ogvjs_demo">
+    <iframe src="https://brionv.com/misc/ogv.js/demo/" width="600" height="400"></iframe>
+  </div>
+  <div class= "b4w-overlay" id="b4w-overlay"></div>
+</body>
+</html>
